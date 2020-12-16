@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './App.css';
 import { makeStyles, useTheme } from '@material-ui/core/styles';
 import AppBar from '@material-ui/core/AppBar';
@@ -13,6 +13,7 @@ import SwipeableViews from 'react-swipeable-views';
 import NumberBox from './components/NumberBox';
 //ml models
 import Model from './components/Model';
+import axios from 'axios';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -26,6 +27,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function App() {
+  const [modelAccs, setModelAccs] = useState([]);
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/accuracies')
+      .then(function (res) {
+        console.log(res.data);
+        setModelAccs(res.data.accuracies);
+      })
+      .catch(function (err) {
+        console.log(err);
+      });
+  }, []);
+
   // form values
   const [state, setState] = useState({
     administrative: 0,
@@ -58,11 +72,25 @@ function App() {
         aria-labelledby={`full-width-tab-${index}`}
         {...other}
       >
-        {value === 0 && <Model states={state} model='logisticRegression' />}
-        {value === 1 && <Model states={state} model='naiveBayes' />}
-        {value === 2 && <Model states={state} model='randomForest' />}
-        {value === 3 && <Model states={state} model='extraTree' />}
-        {value === 4 && <Model states={state} model='neuralNetwork' />}
+        {value === 0 && (
+          <Model
+            states={state}
+            model='logisticRegression'
+            accuracy={modelAccs[0]}
+          />
+        )}
+        {value === 1 && (
+          <Model states={state} model='naiveBayes' accuracy={modelAccs[1]} />
+        )}
+        {value === 2 && (
+          <Model states={state} model='randomForest' accuracy={modelAccs[2]} />
+        )}
+        {value === 3 && (
+          <Model states={state} model='extraTree' accuracy={modelAccs[3]} />
+        )}
+        {value === 4 && (
+          <Model states={state} model='neuralNetwork' accuracy={modelAccs[4]} />
+        )}
       </div>
     );
   }

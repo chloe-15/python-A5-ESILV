@@ -18,7 +18,9 @@ from tensorflow.keras.layers import Dense, Flatten
 # function for the models
 def classifierModel(X_train, y_train, modelType):
     if modelType == 1:
-        model = LogisticRegression(class_weight='balanced', max_iter=100)
+        model = LogisticRegression(class_weight='balanced',
+                                   solver='lbfgs',
+                                   max_iter=1500)
     elif modelType == 2:
         model = GaussianNB()
     elif modelType == 3:
@@ -37,7 +39,8 @@ def classifierModel(X_train, y_train, modelType):
         model.compile(optimizer='adam',
                       loss='binary_crossentropy',
                       metrics=['accuracy'])
-        return model.fit(X_train, Y_train, batch_size=1)
+        hist = model.fit(X_train, y_train, batch_size=1)
+        return (hist, model)
     else:
         print('Unknown moodel type!')
         return
@@ -47,9 +50,12 @@ def classifierModel(X_train, y_train, modelType):
 
 
 # function for moel predictions and accuracies
-def modelPredictions(X_test, y_test, model, inputs):
-
+def modelPredictions(inputs, model):
     input_pred = model.predict([inputs])
+    return input_pred[0]
+
+
+def modelAccuracies(y_test, model, X_test):
     y_pred = model.predict(X_test)
     accuracy = round(metrics.accuracy_score(y_test, y_pred), 3) * 100
-    return [input_pred[0], accuracy]
+    return accuracy
